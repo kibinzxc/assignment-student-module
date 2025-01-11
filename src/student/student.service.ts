@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Student } from './student.entity';
 import { CreateStudentDto } from './dto/create-student.dto';
+import { UpdateStudentDto } from './dto/update-student.dto';
 
 @Injectable()
 export class StudentService {
@@ -31,4 +32,23 @@ export class StudentService {
 
         return student;
     }
+
+    async update(id: number, updateStudentDto: UpdateStudentDto): Promise<Student> {
+        // Check if the student exists
+        const student = await this.studentRepository.findOne({ where: { id } });
+        if (!student) {
+            throw new NotFoundException(`Student with ID ${id} not found`);
+        }
+
+        try {
+            // Merge the updates into the existing entity
+            const updatedStudent = this.studentRepository.merge(student, updateStudentDto);
+
+            // Save the updated entity
+            return await this.studentRepository.save(updatedStudent);
+        } catch (error) {
+            throw new BadRequestException('Failed to update student. Please check your input.');
+        }
+    }
+
 }
