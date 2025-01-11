@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Put, Body, Param, ParseIntPipe, NotFoundException } from '@nestjs/common';
+import { Controller, Post, Get, Put, Delete, Body, Param, ParseIntPipe, NotFoundException } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
@@ -38,5 +38,11 @@ export class StudentController {
         }
 
         return updatedStudent;
+    }
+
+    @Delete(':id')
+    async remove(@Param('id', ParseIntPipe) id: number) {
+        await this.studentService.remove(id);
+        return { message: `Student with ID ${id} has been successfully deleted.` };
     }
 }
